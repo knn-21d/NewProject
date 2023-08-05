@@ -7,5 +7,6 @@ namespace NewProject.Models
         [Key]
         public int ThreadId { get; set; }
         public List<Answer> Answers { get; set; }
+        public int DisplayOrder { get; set; }
     }
 }

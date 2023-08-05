@@ -7,6 +7,7 @@ namespace NewProject.Models
     {
         [Key]
         public int AnswerId { get; set; }
+
         //Relations
         [Required]
         public TopicStart Thread { get; set; }

@@ -7,11 +7,12 @@ namespace NewProject.Models
     public abstract class Post
     {
         [Required]
+        [MaxLength(80)]
         public string Title { get; set; }
         public string Text { get; set; }
         //Relations
-        public string IdentityUserId { get; set; }
-        [ForeignKey("IdentityUserId")]
+        public string ApplicationUserId { get; set; }
+        [ForeignKey("ApplicationUserId")]
         public ApplicationUser User { get; set; }
     }
 }

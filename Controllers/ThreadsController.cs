@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,12 @@ namespace NewProject.Controllers
     public class ThreadsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public ThreadsController(ApplicationDbContext context)
+        public ThreadsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Thread
@@ -57,7 +60,7 @@ namespace NewProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ThreadId,Title,Text,IdentityUserId")] TopicStart topicStart)
+        public async Task<IActionResult> Create([Bind("ThreadId,Title,Text,ApplicationUserId")] TopicStart topicStart)
         {
             if (ModelState.IsValid)
             {
@@ -81,7 +84,7 @@ namespace NewProject.Controllers
             {
                 return NotFound();
             }
-            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", topicStart.IdentityUserId);
+            ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", topicStart.ApplicationUserId);
             return View(topicStart);
         }
 
@@ -90,7 +93,7 @@ namespace NewProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ThreadId,Title,Text,IdentityUserId")] TopicStart topicStart)
+        public async Task<IActionResult> Edit(int id, [Bind("ThreadId,Title,Text,ApplicationUserId")] TopicStart topicStart)
         {
             if (id != topicStart.ThreadId)
             {
@@ -117,7 +120,7 @@ namespace NewProject.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["IdentityUserId"] = new SelectList(_context.Users, "Id", "Id", topicStart.IdentityUserId);
+            ViewData["ApplicationUserId"] = new SelectList(_context.Users, "Id", "Id", topicStart.ApplicationUserId);
             return View(topicStart);
         }
 
