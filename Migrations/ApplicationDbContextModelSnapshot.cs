@@ -265,7 +265,7 @@ namespace NewProject.Migrations
 
                     b.HasIndex("ThreadId");
 
-                    b.ToTable("Answers");
+                    b.ToTable("Answers", (string)null);
                 });
 
             modelBuilder.Entity("NewProject.Models.TopicStart", b =>
@@ -301,7 +301,7 @@ namespace NewProject.Migrations
 
                     b.HasIndex("ApplicationUserId");
 
-                    b.ToTable("Threads");
+                    b.ToTable("Threads", (string)null);
                 });
 
             modelBuilder.Entity("NewProject.Models.ApplicationUser", b =>

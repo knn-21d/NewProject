@@ -8,7 +8,7 @@ namespace NewProject.Models
     {
         [Required]
         [MaxLength(80)]
-        public string Title { get; set; }
+        public virtual string Title { get; set; }
         public string Text { get; set; }
         //Relations
         public string ApplicationUserId { get; set; }

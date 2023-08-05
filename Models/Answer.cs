@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NewProject.Models
@@ -7,6 +8,9 @@ namespace NewProject.Models
     {
         [Key]
         public int AnswerId { get; set; }
+
+        [DefaultValue("")]
+        public override string Title { get; set; }
 
         //Relations
         [Required]

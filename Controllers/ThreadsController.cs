@@ -181,13 +181,14 @@ namespace NewProject.Controllers
                 return Problem("Entity set 'ApplicationDbContext.Threads'  is null.");
             }
             var topicStart = await _context.Threads.FindAsync(id);
-            if (topicStart == null || answer.Title.Trim().Length == 0 || answer.Text.Trim().Length == 0)
+            if (topicStart == null || answer.Text.Trim().Length == 0)
             {
                 return RedirectToAction(nameof(Details), id);
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             answer.ApplicationUserId = userId;
+            answer.Title = "";
             answer.User = _context.ApplicationUsers.Where(usr => usr.Id == userId).First();
 
             topicStart.Answers.Add(answer);
