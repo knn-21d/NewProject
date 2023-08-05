@@ -13,5 +13,6 @@ namespace NewProject.Models
         public TopicStart Thread { get; set; }
         [ForeignKey("ThreadId")]
         public int ThreadId { get; set; }
+        public DateTime CreateDate { get; }
     }
 }

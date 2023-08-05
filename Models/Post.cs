@@ -14,5 +14,6 @@ namespace NewProject.Models
         public string ApplicationUserId { get; set; }
         [ForeignKey("ApplicationUserId")]
         public ApplicationUser User { get; set; }
+        public DateTime CreateDate { get; }
     }
 }

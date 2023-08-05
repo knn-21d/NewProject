@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,6 +13,7 @@ using NewProject.Models;
 
 namespace NewProject.Controllers
 {
+    [Authorize]
     public class ThreadsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -23,6 +26,7 @@ namespace NewProject.Controllers
         }
 
         // GET: Thread
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Threads.Include(t => t.User).Include(t => t.Answers);
@@ -30,6 +34,7 @@ namespace NewProject.Controllers
         }
 
         // GET: Thread/Details/5
+        [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Threads == null)
@@ -60,15 +65,20 @@ namespace NewProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ThreadId,Title,Text,ApplicationUserId")] TopicStart topicStart)
+        public async Task<IActionResult> Create([Bind("Title,Text")] TopicStart topicStart)
         {
-            if (ModelState.IsValid)
+
+            if (topicStart.Title.Trim().Length == 0 || topicStart.Text.Trim().Length == 0 || !User.Identity.IsAuthenticated)
             {
-                _context.Add(topicStart);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return View(topicStart);
             }
-            return View(topicStart);
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            topicStart.ApplicationUserId = userId;
+            topicStart.User = _context.ApplicationUsers.Where(usr => usr.Id == userId).First();
+            _context.Add(topicStart);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Thread/Edit/5
@@ -160,6 +170,32 @@ namespace NewProject.Controllers
             
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost, ActionName("Answer")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AnswerToThread(int id, [Bind("Title,Text")] Answer answer)
+        {
+            if (_context.Threads == null)
+            {
+                return Problem("Entity set 'ApplicationDbContext.Threads'  is null.");
+            }
+            var topicStart = await _context.Threads.FindAsync(id);
+            if (topicStart == null || answer.Title.Trim().Length == 0 || answer.Text.Trim().Length == 0)
+            {
+                return RedirectToAction(nameof(Details), id);
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            answer.ApplicationUserId = userId;
+            answer.User = _context.ApplicationUsers.Where(usr => usr.Id == userId).First();
+
+            topicStart.Answers.Add(answer);
+            _context.Update(topicStart);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new {id = id});
+
         }
 
         private bool TopicStartExists(int id)

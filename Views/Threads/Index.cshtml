@@ -1,4 +1,5 @@
-﻿@model IEnumerable<NewProject.Models.TopicStart>
+﻿@using System.Security.Claims;
+@model IEnumerable<NewProject.Models.TopicStart>
 
 @{
     ViewData["Title"] = "Index";
@@ -9,39 +10,48 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Text)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
+@foreach(var item in Model)
+{
+    String imgSrc;
+    if (item.User.UserPic is not null)
+    {
+        var base64 = Convert.ToBase64String(item.User.UserPic);
+        imgSrc = String.Format("data:image/png;base64,{0}", base64);
+    } else
+    {
+        imgSrc = "https://thumb.ac-illust.com/d5/d561b363a60954468636446936234ca6_t.jpeg";
+    }
+    <div class="container border" style="margin-bottom: 8px">
+        <div class="row">
+            <div class="col">
+                <img class="img-thumbnail" width="200px" height="200px" src="@imgSrc" />
+            </div>
+             
+            <div class="col-sm-8">
+                №<b>@Html.DisplayFor(modelItem => item.ThreadId)</b>&nbsp;
+                Автор: <b>@Html.DisplayFor(modelItem => item.User.Email)</b>&nbsp;
+                Тема: <b>@Html.DisplayFor(modelItem => item.Title)</b>&nbsp;
+            </div>
+            <div class="col-sm-3">
+                Дата создания: <b>@Html.DisplayFor(modelItem => item.CreateDate)</b><br>
+                Ответов: <b>@Html.DisplayFor(modelItem => item.Answers.Count)</b>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10">
                 @Html.DisplayFor(modelItem => item.Text)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ThreadId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ThreadId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ThreadId">Delete</a>
-            </td>
-        </tr>
+            </div>
+            <div class="col">
+                <a asp-action="Details" asp-route-id="@item.ThreadId">Details</a>
+                @if (User.FindFirstValue(ClaimTypes.NameIdentifier) == item.ApplicationUserId)
+                {
+                    <a asp-action="Edit" asp-route-id="@item.ThreadId">Edit</a>
+                }
+                @if (User.FindFirstValue(ClaimTypes.NameIdentifier) == item.ApplicationUserId)
+                {
+                    <a asp-action="Delete" asp-route-id="@item.ThreadId">Delete</a>
+                }
+            </div>
+        </div>
+    </div>
 }
-    </tbody>
-</table>

@@ -12,8 +12,8 @@ using NewProject.Data;
 namespace NewProject.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230731070139_InitialMgr")]
-    partial class InitialMgr
+    [Migration("20230805142221_CreateDat")]
+    partial class CreateDat
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -240,9 +240,14 @@ namespace NewProject.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AnswerId"), 1L, 1);
 
-                    b.Property<string>("IdentityUserId")
+                    b.Property<string>("ApplicationUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
 
                     b.Property<string>("Text")
                         .IsRequired()
@@ -253,11 +258,12 @@ namespace NewProject.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
 
                     b.HasKey("AnswerId");
 
-                    b.HasIndex("IdentityUserId");
+                    b.HasIndex("ApplicationUserId");
 
                     b.HasIndex("ThreadId");
 
@@ -272,9 +278,17 @@ namespace NewProject.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ThreadId"), 1L, 1);
 
-                    b.Property<string>("IdentityUserId")
+                    b.Property<string>("ApplicationUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("getdate()");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int");
 
                     b.Property<string>("Text")
                         .IsRequired()
@@ -282,11 +296,12 @@ namespace NewProject.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
 
                     b.HasKey("ThreadId");
 
-                    b.HasIndex("IdentityUserId");
+                    b.HasIndex("ApplicationUserId");
 
                     b.ToTable("Threads");
                 });
@@ -359,7 +374,7 @@ namespace NewProject.Migrations
                 {
                     b.HasOne("NewProject.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("IdentityUserId")
+                        .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -378,7 +393,7 @@ namespace NewProject.Migrations
                 {
                     b.HasOne("NewProject.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("IdentityUserId")
+                        .HasForeignKey("ApplicationUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

@@ -17,6 +17,8 @@ namespace NewProject.Data
         {
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<IdentityUser>().HasKey(u => u.Id);
+            modelBuilder.Entity<TopicStart>().Property(b => b.CreateDate).HasDefaultValueSql("getdate()");
+            modelBuilder.Entity<Answer>().Property(b => b.CreateDate).HasDefaultValueSql("getdate()");
         }
     }
 }
