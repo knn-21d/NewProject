@@ -3,6 +3,28 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Welcome to New Forum</h1>
+    <div class="container">
+        <h2>
+            This is a forum with no specific theme, where you can freely discuss everything that is important or just interesting in a moment for you.
+        </h2>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col">
+                    <h4>Topics count: <b>@ViewData["ThreadsCount"]</b></h4>
+                </div>
+                <div class="col">
+                    <h4>Users count: <b>@ViewData["UsersCount"]</b></h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <h4>All messages count: <b>@ViewData["AllMessagesCount"]</b></h4>
+                </div>
+                <div class="col">
+                    <h4>Date of latest post: <b>@ViewData["LastPostDate"]</b></h4>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

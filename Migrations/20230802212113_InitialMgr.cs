@@ -203,7 +203,7 @@ namespace NewProject.Migrations
                         column: x => x.ThreadId,
                         principalTable: "Threads",
                         principalColumn: "ThreadId",
-                        onDelete: ReferentialAction.NoAction);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

@@ -103,17 +103,19 @@ namespace NewProject.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ThreadId,Title,Text,ApplicationUserId")] TopicStart topicStart)
+        public async Task<IActionResult> Edit(int id, [Bind("ThreadId,Title,Text")] TopicStart topicStart)
         {
             if (id != topicStart.ThreadId)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (topicStart.Title.Trim().Length > 0 && topicStart.Text.Trim().Length > 0 && userId is not null)
             {
                 try
                 {
+                    topicStart.ApplicationUserId = userId;
+                    topicStart.User = _context.ApplicationUsers.Where(usr => usr.Id == userId).First();
                     _context.Update(topicStart);
                     await _context.SaveChangesAsync();
                 }
