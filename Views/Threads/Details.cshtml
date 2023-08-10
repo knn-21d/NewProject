@@ -74,7 +74,7 @@
             <input type='hidden' name="id" value="@Model.ThreadId" />
             <div class="mb-3">
                 <label asp-for="Text" class="control-label">Your answer</label>
-                <textarea type="text" asp-for="Text" class="form-control"></textarea>
+                <textarea type="text" asp-for="Text" class="form-control" placeholder=""></textarea>
                 <span asp-validation-for="Text" class="text-danger"></span>
             </div>
             <div class="form-group">
