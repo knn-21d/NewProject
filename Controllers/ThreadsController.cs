@@ -29,8 +29,11 @@ namespace NewProject.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Threads.Include(t => t.User).Include(t => t.Answers);
-            return View(await applicationDbContext.ToListAsync());
+            return View(await _context.Threads
+                .Include(t => t.User)
+                .Include(t => t.Answers)
+                .OrderByDescending(t => t.Answers.Count > 0 ? t.Answers.OrderByDescending(a => a.CreateDate).First().CreateDate : t.CreateDate)
+                .ToListAsync());
         }
 
         // GET: Thread/Details/5
@@ -176,29 +179,71 @@ namespace NewProject.Controllers
 
         [HttpPost, ActionName("Answer")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AnswerToThread(int id, [Bind("Title,Text")] Answer answer)
+        public async Task<IActionResult> AnswerToThread(int id, string text)
         {
             if (_context.Threads == null)
             {
                 return Problem("Entity set 'ApplicationDbContext.Threads'  is null.");
             }
             var topicStart = await _context.Threads.FindAsync(id);
-            if (topicStart == null || answer.Text.Trim().Length == 0)
+            if (topicStart == null || text.Trim().Length == 0)
             {
                 return RedirectToAction(nameof(Details), id);
             }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            answer.ApplicationUserId = userId;
-            answer.Title = "";
-            answer.User = _context.ApplicationUsers.Where(usr => usr.Id == userId).First();
+            var answer = new Answer
+            {
+                ApplicationUserId = userId,
+                Title = "",
+                User = _context.ApplicationUsers.Where(usr => usr.Id == userId).First(),
+                Text = text
+            };
 
             topicStart.Answers.Add(answer);
             _context.Update(topicStart);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Details), new {id = id});
+            return RedirectToAction(nameof(Details), new { id = id });
+        }
 
+        [HttpPost, ActionName("DeleteAnswer")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAnswer(int answerId)
+        {
+            if (_context.Threads == null || _context.Answers == null)
+            {
+                return Problem("Entity set 'ApplicationDbContext.Threads'  is null.");
+            }
+            var answer = await _context.Answers.FindAsync(answerId);
+            if (answer != null)
+            {
+                _context.Answers.Remove(answer);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Details), new { id = answer.ThreadId });
+            }
+
+             return Problem("Not found entity by id");
+        }
+
+        [HttpPost, ActionName("EditAnswer")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditAnswer(int answerId, string newText)
+        {
+            if (_context.Threads == null || _context.Answers == null)
+            {
+                return Problem("Entity set 'ApplicationDbContext.Threads'  is null.");
+            }
+            var answer = await _context.Answers.FindAsync(answerId);
+            if (answer != null && newText.Trim().Length > 0)
+            {
+                answer.Text = newText;
+                _context.Answers.Update(answer);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Details), new { id = answer.ThreadId });
+            }
+
+            return Problem("Not found entity by id");
         }
 
         private bool TopicStartExists(int id)

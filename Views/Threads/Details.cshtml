@@ -5,83 +5,129 @@
     ViewData["Title"] = "Details";
 }
 
-    @{
-        String topicStartImgSrc = Model.User.UserPic is not null
-            ? String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model.User.UserPic))
-            : "https://thumb.ac-illust.com/d5/d561b363a60954468636446936234ca6_t.jpeg";
+@{
+    String topicStartImgSrc = Model.User.UserPic is not null
+        ? String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model.User.UserPic))
+        : "https://thumb.ac-illust.com/d5/d561b363a60954468636446936234ca6_t.jpeg";
+}
+<script>
+    const openingModalButton = document.getElementById("deleteDialogButton");
+    let id;
+    const preventDeletingButton = document.getElementById('prevenDeletingButton')
+    function openModal(answerId) {
+        const modal = document.getElementById('deleteDialog');
+        const hiddenDeleteInput = document.getElementById('hiddenDeleteId');
+        id = answerId
+        hiddenDeleteInput.value = answerId;
+        modal.showModal();
     }
-    <div class="container" style="margin-bottom: 16px">
+    function closeModal () {
+        const modal = document.getElementById('deleteDialog');
+        id = null;
+        modal.close();
+    }
+</script>
+<div class="container" style="margin-bottom: 16px">
+    <div class="row">
+        <div class="col">
+            №<b>1</b>&nbsp;
+            @Html.DisplayFor(model => Model.User.Email)&nbsp;
+            @Html.DisplayFor(modelItem => Model.CreateDate)
+        </div>
+    </div>
+    <div class="col">
         <div class="row">
             <div class="col">
-                №<b>1</b>&nbsp;
-                @Html.DisplayFor(model => Model.User.Email)&nbsp;
-                @Html.DisplayFor(modelItem => Model.CreateDate)</div>
-        </div>
-        <div class="col">
-            <div class="row">
-                <div class="col">
-                    <img class="img-thumbnail" width="200px" height="200px" src="@topicStartImgSrc" />
-                </div>
-                <div class="col-sm-10">
-                    <div class="row">
-                        <div class="col">
-                            <h2><b>@Html.DisplayFor(modelItem => Model.Title)</b></h2>
-                        </div>
+                <img class="img-thumbnail" width="200px" height="200px" src="@topicStartImgSrc" />
+            </div>
+            <div class="col-sm-10">
+                <div class="row">
+                    <div class="col">
+                        <h2><b>@Html.DisplayFor(modelItem => Model.Title)</b></h2>
                     </div>
-                    <div class="row">
-                        <div class="col">
-                            @Html.DisplayFor(model => Model.Text)
-                        </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        @Html.DisplayFor(model => Model.Text)
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    @foreach (var (index, answer) in @Model.Answers.Select((answer, i) => (i, answer)))
-    {
-        <div class="container" style="margin-bottom: 8px">
-            <div class="row">
-                @{
-                    String imgSrc = Model.User.UserPic is not null
-                        ? String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model.User.UserPic))
-                        : "https://thumb.ac-illust.com/d5/d561b363a60954468636446936234ca6_t.jpeg";
-                }
-                <div class="col">
-                    <img class="img-thumbnail" width="200px" height="200px" src="@imgSrc" />
-                </div>
-                <div class="col-sm-11">
-                    <div class="row">
-                        <div class="col-sm-9">
-                            №<b>@(index + 2)</b>&nbsp;
-                            Автор: <b>@Html.DisplayFor(modelItem => answer.User.Email)</b>&nbsp;
-                        </div>
-                        <div class="col">
-                            Дата создания: <b>@Html.DisplayFor(modelItem => answer.CreateDate)</b><br>
-                        </div>
+</div>
+@foreach (var (index, answer) in @Model.Answers.Select((answer, i) => (i, answer)))
+{
+    <div class="container" style="margin-bottom: 8px">
+        <div class="row">
+            @{
+                String imgSrc = Model.User.UserPic is not null
+                ? String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model.User.UserPic))
+                : "https://thumb.ac-illust.com/d5/d561b363a60954468636446936234ca6_t.jpeg";
+            }
+            <div class="col">
+                <img class="img-thumbnail" width="200px" height="200px" src="@imgSrc" />
+            </div>
+            <div class="col-sm-11">
+                <div class="row">
+                    <div class="col-sm-9">
+                        №<b>@(index + 2)</b>&nbsp;
+                        Автор: <b>@Html.DisplayFor(modelItem => answer.User.Email)</b>&nbsp;
                     </div>
-                    <div class="row">
-                        <div class="col">
-                            @Html.DisplayFor(i => answer.Text)
-                        </div>
+                    <div class="col">
+                        Дата создания: <b>@Html.DisplayFor(modelItem => answer.CreateDate)</b><br>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        @Html.DisplayFor(i => answer.Text)
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <a id="deleteDialogButton" onclick="
+                            console.log(123);
+                            openModal(@answer.AnswerId)
+                        ">Delete</a>
                     </div>
                 </div>
             </div>
         </div>
-    }
+    </div>
+}
+@if (User.Identity?.IsAuthenticated is not null && User.Identity.IsAuthenticated)
+{
     <div class="row">
         <form asp-action="Answer">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type='hidden' name="id" value="@Model.ThreadId" />
             <div class="mb-3">
-                <label asp-for="Text" class="control-label">Your answer</label>
-                <textarea type="text" asp-for="Text" class="form-control"></textarea>
-                <span asp-validation-for="Text" class="text-danger"></span>
+                <label class="control-label">Your answer</label>
+                <textarea type="text" name="text" class="form-control"></textarea>
             </div>
             <div class="form-group">
                 <input type="submit" id="@Model.ThreadId" value="Answer" class="btn btn-primary" />
             </div>
         </form>
     </div>
-    <div class="row">
-        <a asp-action="Index">Back to List</a>
+}
+
+<div class="row">
+    <a asp-action="Index">Back to List</a>
+</div>
+
+<dialog id="deleteDialog">
+    <div class="text-center">Are you sure that you want to delete your answer?
+        <div class="container-fluid">
+            <div class="row">
+                <form asp-action="DeleteAnswer" class="col">
+                    <input id="hiddenDeleteId" type="hidden" name="answerId" />
+                    <input type="submit" class="btn btn-primary" value="Yes" />
+                </form>
+                <div class="col">
+                    <button class="btn btn-secondary" id="prevenDeletingButton" onclick="closeModal()" >No</button>
+                </div>
+            </div>
+        </div>
     </div>
+</dialog>
+
