@@ -9,6 +9,5 @@ namespace NewProject.Models
         public int ThreadId { get; set; }
         public List<Answer> Answers { get; set; } = new();
         public int DisplayOrder { get; set; }
-        public DateTime CreateDate { get; }
     }
 }

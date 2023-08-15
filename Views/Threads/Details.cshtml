@@ -70,8 +70,8 @@
     <div class="container" style="margin-bottom: 8px">
         <div class="row">
             @{
-                String imgSrc = Model.User.UserPic is not null
-                ? String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model.User.UserPic))
+                String imgSrc = answer?.User?.UserPic is not null
+                ? String.Format("data:image/png;base64,{0}", Convert.ToBase64String(answer.User.UserPic))
                 : "https://cdn.discordapp.com/attachments/909252875258048522/1140788289905901578/no-avatar.webp";
             }
             <div class="col">
