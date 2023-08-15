@@ -29,11 +29,16 @@ namespace NewProject.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Threads
+            var data = await _context.Threads
                 .Include(t => t.User)
                 .Include(t => t.Answers)
                 .OrderByDescending(t => t.Answers.Count > 0 ? t.Answers.OrderByDescending(a => a.CreateDate).First().CreateDate : t.CreateDate)
-                .ToListAsync());
+                .ToListAsync();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewData["visitingUserId"] = userId;
+            ViewData["userIsAdmin"] = _context.ApplicationUsers?.Where(usr => usr.Id == userId)?.FirstOrDefault()?.IsAdmin;
+
+            return View(data);
         }
 
         // GET: Thread/Details/5
@@ -53,7 +58,10 @@ namespace NewProject.Controllers
             {
                 return NotFound();
             }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            ViewData["visitingUserId"] = userId;
+            ViewData["userIsAdmin"] = _context.ApplicationUsers?.Where(usr => usr.Id == userId)?.FirstOrDefault()?.IsAdmin;
             return View(topicStart);
         }
 
@@ -172,83 +180,83 @@ namespace NewProject.Controllers
             {
                 _context.Threads.Remove(topicStart);
             }
-            
+
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost, ActionName("Answer")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AnswerToThread(int id, string text)
-        {
-            if (_context.Threads == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Threads'  is null.");
-            }
-            var topicStart = await _context.Threads.FindAsync(id);
-            if (topicStart == null || text.Trim().Length == 0)
-            {
-                return RedirectToAction(nameof(Details), id);
-            }
+        //[HttpPost, ActionName("Answer")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> AnswerToThread(int id, string text)
+        //{
+        //    if (_context.Threads == null)
+        //    {
+        //        return Problem("Entity set 'ApplicationDbContext.Threads'  is null.");
+        //    }
+        //    var topicStart = await _context.Threads.FindAsync(id);
+        //    if (topicStart == null || text.Trim().Length == 0)
+        //    {
+        //        return RedirectToAction(nameof(Details), id);
+        //    }
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var answer = new Answer
-            {
-                ApplicationUserId = userId,
-                Title = "",
-                User = _context.ApplicationUsers.Where(usr => usr.Id == userId).First(),
-                Text = text
-            };
+        //    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        //    var answer = new Answer
+        //    {
+        //        ApplicationUserId = userId,
+        //        Title = "",
+        //        User = _context.ApplicationUsers.Where(usr => usr.Id == userId).First(),
+        //        Text = text
+        //    };
 
-            topicStart.Answers.Add(answer);
-            _context.Update(topicStart);
-            await _context.SaveChangesAsync();
+        //    topicStart.Answers.Add(answer);
+        //    _context.Update(topicStart);
+        //    await _context.SaveChangesAsync();
 
-            return RedirectToAction(nameof(Details), new { id = id });
-        }
+        //    return RedirectToAction(nameof(Details), new { id = id });
+        //}
 
-        [HttpPost, ActionName("DeleteAnswer")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteAnswer(int answerId)
-        {
-            if (_context.Threads == null || _context.Answers == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Threads'  is null.");
-            }
-            var answer = await _context.Answers.FindAsync(answerId);
-            if (answer != null)
-            {
-                _context.Answers.Remove(answer);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Details), new { id = answer.ThreadId });
-            }
+        //[HttpPost, ActionName("DeleteAnswer")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteAnswer(int answerId)
+        //{
+        //    if (_context.Threads == null || _context.Answers == null)
+        //    {
+        //        return Problem("Entity set 'ApplicationDbContext.Threads'  is null.");
+        //    }
+        //    var answer = await _context.Answers.FindAsync(answerId);
+        //    if (answer != null)
+        //    {
+        //        _context.Answers.Remove(answer);
+        //        await _context.SaveChangesAsync();
+        //        return RedirectToAction(nameof(Details), new { id = answer.ThreadId });
+        //    }
 
-             return Problem("Not found entity by id");
-        }
+        //    return Problem("Not found entity by id");
+        //}
 
-        [HttpPost, ActionName("EditAnswer")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditAnswer(int answerId, string newText)
-        {
-            if (_context.Threads == null || _context.Answers == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.Threads'  is null.");
-            }
-            var answer = await _context.Answers.FindAsync(answerId);
-            if (answer != null && newText.Trim().Length > 0)
-            {
-                answer.Text = newText;
-                _context.Answers.Update(answer);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Details), new { id = answer.ThreadId });
-            }
+        //[HttpPost, ActionName("EditAnswer")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> EditAnswer(int answerId, string newText)
+        //{
+        //    if (_context.Threads == null || _context.Answers == null)
+        //    {
+        //        return Problem("Entity set 'ApplicationDbContext.Threads'  is null.");
+        //    }
+        //    var answer = await _context.Answers.FindAsync(answerId);
+        //    if (answer != null && newText.Trim().Length > 0)
+        //    {
+        //        answer.Text = newText;
+        //        _context.Answers.Update(answer);
+        //        await _context.SaveChangesAsync();
+        //        return RedirectToAction(nameof(Details), new { id = answer.ThreadId });
+        //    }
 
-            return Problem("Not found entity by id");
-        }
+        //    return Problem("Not found entity by id");
+        //}
 
         private bool TopicStartExists(int id)
         {
-          return (_context.Threads?.Any(e => e.ThreadId == id)).GetValueOrDefault();
+            return (_context.Threads?.Any(e => e.ThreadId == id)).GetValueOrDefault();
         }
     }
 }

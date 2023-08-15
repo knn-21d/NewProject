@@ -13,7 +13,7 @@ namespace NewProject.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20230806162143_deletecrash")]
-    partial class deletecrash
+    partial class DeleteCrash
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

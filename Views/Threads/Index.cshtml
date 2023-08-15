@@ -10,23 +10,24 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-@foreach(var item in Model)
+@foreach (var item in Model)
 {
     String imgSrc;
     if (item.User.UserPic is not null)
     {
         var base64 = Convert.ToBase64String(item.User.UserPic);
         imgSrc = String.Format("data:image/png;base64,{0}", base64);
-    } else
+    }
+    else
     {
-        imgSrc = "https://thumb.ac-illust.com/d5/d561b363a60954468636446936234ca6_t.jpeg";
+        imgSrc = "https://cdn.discordapp.com/attachments/909252875258048522/1140788289905901578/no-avatar.webp";
     }
     <div class="container border" style="margin-bottom: 8px">
         <div class="row">
             <div class="col">
                 <img class="img-thumbnail" width="200px" height="200px" src="@imgSrc" />
             </div>
-             
+
             <div class="col-sm-8">
                 №<b>@Html.DisplayFor(modelItem => item.ThreadId)</b>&nbsp;
                 Автор: <b>@Html.DisplayFor(modelItem => item.User.Email)</b>&nbsp;
@@ -43,11 +44,11 @@
             </div>
             <div class="col">
                 <a asp-action="Details" asp-route-id="@item.ThreadId">Details</a>
-                @if (User.FindFirstValue(ClaimTypes.NameIdentifier) == item.ApplicationUserId)
+                @if ((ViewData["visitingUserId"] is not null && ViewData["visitingUserId"].Equals(item.ApplicationUserId)) || (ViewData["userIsAdmin"] is not null && ViewData["userIsAdmin"].Equals(true)))
                 {
                     <a asp-action="Edit" asp-route-id="@item.ThreadId">Edit</a>
                 }
-                @if (User.FindFirstValue(ClaimTypes.NameIdentifier) == item.ApplicationUserId)
+                @if ((ViewData["visitingUserId"] is not null && ViewData["visitingUserId"].Equals(item.ApplicationUserId)) || (ViewData["userIsAdmin"] is not null && ViewData["userIsAdmin"].Equals(true)))
                 {
                     <a asp-action="Delete" asp-route-id="@item.ThreadId">Delete</a>
                 }

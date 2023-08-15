@@ -19,7 +19,6 @@ namespace NewProject.Controllers
         {
             _logger = logger;
             _context = context;
-
         }
 
         public IActionResult Index()
@@ -62,30 +61,6 @@ namespace NewProject.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-
-        [HttpPost, ActionName("UploadPhoto")]
-        public async Task<IActionResult> UploadFile(IFormFile file)
-        {
-            if (file is null)
-            {
-                return View();
-            } 
-            byte[] bytes = default(byte[]);
-            using (var memoryStream = new MemoryStream())
-            {
-                await file.OpenReadStream().CopyToAsync(memoryStream);
-                bytes = memoryStream.ToArray();
-            }
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = _context.ApplicationUsers.Where(usr => usr.Id == userId).First();
-            user.UserPic = bytes;
-            _context.ApplicationUsers.Update(user);
-            await _context.SaveChangesAsync();
-
-            return Redirect("/Identity/Account/Manage");
-            //return some action result e.g. return new HttpStatusCodeResult(HttpStatusCode.OK);
         }
     }
 }

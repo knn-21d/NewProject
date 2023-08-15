@@ -9,10 +9,6 @@
 <partial name="_StatusMessage" for="StatusMessage" />
 <div class="row">
     <div class="col-md-6">
-    <form method="post" enctype="multipart/form-data" asp-action="UploadPhoto" class="form-floating">
-        <input enctype="multipart/form-data" name="file" type="file" />
-        <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
-    </form>
         <form id="profile-form" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-floating">
@@ -25,6 +21,10 @@
                 <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
             </div>
             <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+        </form>
+        <form method="post" enctype="multipart/form-data" asp-controller="AppUser" asp-action="UploadPhoto" class="form-floating">
+            <input enctype="multipart/form-data" name="file" type="file" />
+            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save image</button>
         </form>
     </div>
 </div>

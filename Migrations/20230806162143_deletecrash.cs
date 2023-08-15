@@ -4,7 +4,7 @@
 
 namespace NewProject.Migrations
 {
-    public partial class deletecrash : Migration
+    public partial class DeleteCrash : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

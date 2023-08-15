@@ -8,21 +8,31 @@
 @{
     String topicStartImgSrc = Model.User.UserPic is not null
         ? String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model.User.UserPic))
-        : "https://thumb.ac-illust.com/d5/d561b363a60954468636446936234ca6_t.jpeg";
+        : "https://cdn.discordapp.com/attachments/909252875258048522/1140788289905901578/no-avatar.webp";
 }
 <script>
-    const openingModalButton = document.getElementById("deleteDialogButton");
     let id;
-    const preventDeletingButton = document.getElementById('prevenDeletingButton')
-    function openModal(answerId) {
+    function openDeleteModal(answerId) {
         const modal = document.getElementById('deleteDialog');
         const hiddenDeleteInput = document.getElementById('hiddenDeleteId');
         id = answerId
         hiddenDeleteInput.value = answerId;
         modal.showModal();
     }
-    function closeModal () {
+    function closeDeleteModal() {
         const modal = document.getElementById('deleteDialog');
+        id = null;
+        modal.close();
+    }
+    function openEditModal(answerId) {
+        const modal = document.getElementById('editDialog');
+        const hiddenEditInput = document.getElementById('hiddenEditId');
+        id = answerId;
+        hiddenEditInput.value = answerId;
+        modal.showModal();
+    }
+    function closeEditModal() {
+        const modal = document.getElementById('editDialog');
         id = null;
         modal.close();
     }
@@ -62,7 +72,7 @@
             @{
                 String imgSrc = Model.User.UserPic is not null
                 ? String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model.User.UserPic))
-                : "https://thumb.ac-illust.com/d5/d561b363a60954468636446936234ca6_t.jpeg";
+                : "https://cdn.discordapp.com/attachments/909252875258048522/1140788289905901578/no-avatar.webp";
             }
             <div class="col">
                 <img class="img-thumbnail" width="200px" height="200px" src="@imgSrc" />
@@ -82,14 +92,20 @@
                         @Html.DisplayFor(i => answer.Text)
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col">
-                        <a id="deleteDialogButton" onclick="
-                            console.log(123);
-                            openModal(@answer.AnswerId)
+                @if ((ViewData["visitingUserId"] is not null && ViewData["visitingUserId"].Equals(answer.ApplicationUserId)) || (ViewData["userIsAdmin"] is not null && ViewData["userIsAdmin"].Equals(true)))
+                {
+                    <div class="row">
+                        <div class="col">
+                            <a id="editDialogButton" onclick="
+                            openEditModal(@answer.AnswerId)
+                        ">Edit</a>
+                            &nbsp;
+                            <a id="deleteDialogButton" onclick="
+                            openDeleteModal(@answer.AnswerId)
                         ">Delete</a>
+                        </div>
                     </div>
-                </div>
+                }
             </div>
         </div>
     </div>
@@ -97,7 +113,7 @@
 @if (User.Identity?.IsAuthenticated is not null && User.Identity.IsAuthenticated)
 {
     <div class="row">
-        <form asp-action="Answer">
+        <form asp-action="Answer" asp-controller="Answers">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type='hidden' name="id" value="@Model.ThreadId" />
             <div class="mb-3">
@@ -116,18 +132,34 @@
 </div>
 
 <dialog id="deleteDialog">
-    <div class="text-center">Are you sure that you want to delete your answer?
+    <div class="text-center">
+        Are you sure that you want to delete your answer?
         <div class="container-fluid">
             <div class="row">
-                <form asp-action="DeleteAnswer" class="col">
+                <form asp-action="DeleteAnswer" asp-controller="Answers" class="col">
                     <input id="hiddenDeleteId" type="hidden" name="answerId" />
                     <input type="submit" class="btn btn-primary" value="Yes" />
                 </form>
                 <div class="col">
-                    <button class="btn btn-secondary" id="prevenDeletingButton" onclick="closeModal()" >No</button>
+                    <button class="btn btn-secondary" id="prevenDeletingButton" onclick="closeDeleteModal()">No</button>
                 </div>
             </div>
         </div>
     </div>
 </dialog>
 
+<dialog id="editDialog">
+    <div class="text-center">
+        Enter new text for your answer
+        <form asp-action="EditAnswer" asp-controller="Answers" class="container-fluid">
+            <input id="hiddenEditId" type="hidden" name="answerId" />
+            <div class="row">
+                <textarea type="text" name="newText" class="form-control"></textarea>
+            </div>
+            <div class="row">
+                <input type="submit" class="btn btn-primary" value="Edit" />
+                <button class="btn btn-secondary" id="prevenDeletingButton" onclick="closeEditModal()">Close</button>
+            </div>
+        </form>
+    </div>
+</dialog>
