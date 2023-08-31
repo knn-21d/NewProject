@@ -33,3 +33,9 @@ body {
         filter: blur(10px) brightness(0.9) grayscale(25%) saturate(30%);
         pointer-events: none;
     }
+
+* {
+    font-family: Arial;
+    font-style: normal;
+    font-weight: 400;
+}
